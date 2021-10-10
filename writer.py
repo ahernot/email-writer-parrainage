@@ -3,8 +3,10 @@ import math
 import numpy
 
 from preferences import *
+from style import Style
 
 
+# add a style_formatter=Style.random option in __init__
 class EmailBlock:
 
     def uniform_density(i: float): return 1.
@@ -49,16 +51,34 @@ class EmailBlock:
             # Generate line
             for text_id in range(nb_text):
                 line += CHAR_BREAK * math.ceil(random_gaps_scaled[text_id])
-                line += self.text
+                text_formatted = Style.random().__repr__() .format (**{'text': self.text})
+                line += text_formatted
 
             lines.append(line)
         
         return LINE_BREAK.join(lines)
-            
 
 
+class Email:
 
-eb = EmailBlock (100, 200, 'B', density_function=EmailBlock.squared_density)
-eb.render()
+    def __init__(self, blocks: list, page_width: int):
+        self.blocks = blocks # list of dicts
+        self.page_width = page_width
+    
+    def render(self):      
+        blocks = list()
 
+        for block in self.blocks:
+            email_block = EmailBlock (
+                text=block['text'],
+                nb_lines=block['nb_lines'],
+                page_width=self.page_width,
+                max_density=block['max_density'],  # 10
+                density_function = block['density_function']  # EmailBlock.uniform_density
+            )
 
+            block_rendered = email_block.render()
+
+            blocks.append (block_rendered)
+        
+        return LINE_BREAK.join(blocks)
