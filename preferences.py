@@ -1,0 +1,2 @@
+CHAR_BREAK = ' '
+LINE_BREAK = '\n'
